@@ -1,0 +1,19 @@
+{
+  "name": "advanced-pro-repository",
+  "version": "1.0.0",
+  "description": "Advanced ruta smart payment",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ishimwee514-hue/Advanced-pro-repository.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ishimwee514-hue/Advanced-pro-repository/issues"
+  },
+  "homepage": "https://github.com/ishimwee514-hue/Advanced-pro-repository#readme"
+}
