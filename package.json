@@ -1,19 +1,30 @@
 {
   "name": "advanced-pro-repository",
+  "private": true,
   "version": "1.0.0",
   "description": "Advanced ruta smart payment",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ishimwee514-hue/Advanced-pro-repository.git"
   },
   "keywords": [],
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/ishimwee514-hue/Advanced-pro-repository/issues"
   },
-  "homepage": "https://github.com/ishimwee514-hue/Advanced-pro-repository#readme"
+  "homepage": "https://github.com/ishimwee514-hue/Advanced-pro-repository#readme",
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
+    "vite": "^8.3.0"
+  }
 }
