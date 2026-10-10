@@ -1,13 +1,19 @@
 {
-  "name": "advanced-pro-repository",
+  "name": "ruta",
   "private": true,
   "version": "1.0.0",
-  "description": "Advanced ruta smart payment",
-  "type": "module",
+  "description": "Ruta mobility platform monorepo",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "npm run dev --workspace @ruta/frontend",
+    "dev:backend": "npm run dev --workspace @ruta/backend",
+    "build": "npm run build --workspace @ruta/frontend",
+    "preview": "npm run preview --workspace @ruta/frontend",
+    "db:generate": "npm run prisma:generate --workspace @ruta/backend",
+    "db:migrate": "npm run prisma:migrate --workspace @ruta/backend"
   },
   "repository": {
     "type": "git",
@@ -18,13 +24,7 @@
     "url": "https://github.com/ishimwee514-hue/Advanced-pro-repository/issues"
   },
   "homepage": "https://github.com/ishimwee514-hue/Advanced-pro-repository#readme",
-  "dependencies": {
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.4"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^6.1.1",
-    "vite": "^8.3.0"
+  "engines": {
+    "node": ">=20.6"
   }
 }
