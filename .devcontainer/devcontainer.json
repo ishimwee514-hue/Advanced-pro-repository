@@ -1,0 +1,12 @@
+{
+  "name": "Ruta",
+  "postCreateCommand": "npm install",
+  "postStartCommand": "nohup npm run dev -- --host 0.0.0.0 > /tmp/ruta-frontend.log 2>&1 < /dev/null &",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Ruta frontend",
+      "onAutoForward": "openBrowser"
+    }
+  }
+}
