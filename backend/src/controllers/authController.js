@@ -1,7 +1,7 @@
 import { randomBytes, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto'
 import { promisify } from 'node:util'
 import { prisma } from '../config/database.js'
-import { createAuthToken } from '../utils/authTokens.js'
+import { assertAuthConfigured, createAuthToken } from '../utils/authTokens.js'
 
 const scrypt = promisify(scryptCallback)
 
@@ -27,6 +27,7 @@ function handleConfigurationError(error, response) {
 
 export async function register(request, response, next) {
   try {
+    assertAuthConfigured()
     const { name, email, password, phone } = request.body ?? {}
     if (typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 100) {
       return response.status(400).json({ error: 'Enter a name between 2 and 100 characters.' })
@@ -59,6 +60,7 @@ export async function register(request, response, next) {
 
 export async function login(request, response, next) {
   try {
+    assertAuthConfigured()
     const { email, password } = request.body ?? {}
     if (typeof email !== 'string' || typeof password !== 'string' || password.length > 128) {
       return response.status(400).json({ error: 'Enter your email and password.' })
