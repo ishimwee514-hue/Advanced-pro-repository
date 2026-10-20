@@ -12,6 +12,10 @@ function getSecret() {
   return secret
 }
 
+export function assertAuthConfigured() {
+  getSecret()
+}
+
 function sign(value) {
   return createHmac('sha256', getSecret()).update(value).digest('base64url')
 }
