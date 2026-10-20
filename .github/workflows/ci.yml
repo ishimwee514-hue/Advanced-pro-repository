@@ -1,0 +1,21 @@
+name: Ruta checks
+on:
+  pull_request:
+  push:
+    branches: [main, "feat/**"]
+jobs:
+  web-and-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Generate Prisma client
+        run: npm run db:generate
+      - name: Build browser website
+        run: npm run build
+      - name: Check backend entry syntax
+        run: node --check backend/src/server.js
