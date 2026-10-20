@@ -520,3 +520,47 @@ tbody tr:hover { background: #fbfcfd; }
   .booking-confirm-row button { width: 100%; }
   .seat-grid { grid-template-columns: repeat(4, minmax(30px, 1fr)); }
 }
+
+
+/* Ruta visual refinement: consistent surfaces, clearer hierarchy, and touch-friendly controls */
+.entry-page { color: #263c30; background: #fff; }
+.entry-header { position: relative; z-index: 2; }
+.entry-brand { text-decoration: none; }
+.entry-nav a, .entry-text-link, .entry-routes-heading > a, .entry-footer a { text-decoration: none; }
+.entry-nav a:focus-visible, .entry-route-item:focus-visible, .entry-search-submit:focus-visible,
+.entry-select-trip:focus-visible, .entry-reset-search:focus-visible, .booking-page button:focus-visible,
+.booking-page a:focus-visible { outline: 3px solid #b4e4c5; outline-offset: 3px; }
+.entry-search { border: 1px solid #edf1eb; border-radius: 8px; }
+.entry-search-submit, .entry-select-trip, .entry-reset-search, .entry-dialog-close { cursor: pointer; }
+.entry-search-submit { border-radius: 5px; }
+.entry-search-submit:disabled { opacity: .65; cursor: wait; }
+.entry-departure { transition: background .18s ease; }
+.entry-departure:hover { background: #edf3ec; }
+.entry-select-trip { border-radius: 5px; }
+.entry-route-item { transition: background .18s ease; }
+.entry-dialog { border: 1px solid #e7ede6; border-radius: 10px; }
+.entry-dialog-close { border-radius: 6px; }
+.entry-dialog-close:hover { color: #244d39; background: #eef4ed; }
+.entry-booking-form input, .entry-fields input, .entry-fields select { border-radius: 5px; }
+.booking-page { color: #263c30; background: #f4f7f3; }
+.booking-header { border-bottom-color: #dce6dc; }
+.booking-panel { border-color: #e1e9df; border-radius: 10px; box-shadow: 0 8px 26px #203d2a0a; }
+.booking-panel > h2, .booking-section-heading h2 { color: #253d30; }
+.booking-search-form input:focus, .booking-auth-form input:focus { border-color: #368365; box-shadow: 0 0 0 3px #36836520; }
+.booking-trip { border-radius: 10px; }
+.booking-trip.selected { border-color: #368365; background: #f0f7ef; }
+.seat-button { min-height: 42px; border-radius: 6px; cursor: pointer; transition: background .15s ease, border-color .15s ease; }
+.seat-button.booked { cursor: not-allowed; }
+.booking-auth-toggle { border-radius: 7px; }
+.booking-auth-toggle button { border-radius: 5px; }
+@media (max-width: 650px) {
+  .entry-nav { gap: 10px; }
+  .entry-nav a:last-child { white-space: nowrap; }
+  .entry-search { border-radius: 8px; }
+  .entry-section-heading { align-items: flex-start; }
+  .entry-reset-search { flex-shrink: 0; }
+  .entry-dialog { border-radius: 10px; padding: 27px 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .entry-departure, .entry-route-item, .seat-button { transition: none; }
+}
