@@ -39,7 +39,7 @@ export async function listTrips(request, response, next) {
       if (!start) return response.status(400).json({ error: 'Date must be a valid YYYY-MM-DD date.' })
       const end = new Date(start)
       end.setUTCDate(end.getUTCDate() + 1)
-      where.departureAt = { gte: start, lt: end }
+      where.departureAt = { gte: start > new Date() ? start : new Date(), lt: end }
     }
     const trips = await prisma.trip.findMany({
       where,
