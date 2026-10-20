@@ -1,0 +1,28 @@
+name: Ruta checks
+on:
+  pull_request:
+  push:
+    branches: [main, "feat/**"]
+jobs:
+  web-api-mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install monorepo dependencies
+        run: npm ci
+      - name: Generate Prisma client
+        run: npm run db:generate
+      - name: Build browser website
+        run: npm run build
+      - name: Check backend entry syntax
+        run: node --check backend/src/server.js
+      - name: Install mobile dependencies
+        working-directory: apps/mobile
+        run: npm install --no-audit --no-fund
+      - name: Bundle Android mobile app
+        working-directory: apps/mobile
+        run: npx expo export --platform android
