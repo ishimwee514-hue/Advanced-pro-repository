@@ -109,6 +109,7 @@ function EntryPage() {
           <nav className="entry-nav" aria-label="Main navigation">
             <a href="#how-it-works">How it works</a>
             <a href="#routes">Popular routes</a>
+            <Link to="/book">Seat booking preview</Link>
             <Link to="/login">Staff sign in <span aria-hidden="true">↗</span></Link>
           </nav>
         </header>
