@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { RoleProvider } from './context/RoleContext.jsx'
 import AppLayout from './components/AppLayout.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
@@ -8,6 +8,7 @@ import FleetPage from './pages/FleetPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 import PaymentsPage from './pages/PaymentsPage.jsx'
+import PassengerBookingPage from './pages/PassengerBookingPage.jsx'
 import RoutesPage from './pages/RoutesPage.jsx'
 import TicketsPage from './pages/TicketsPage.jsx'
 import TripsPage from './pages/TripsPage.jsx'
@@ -20,6 +21,7 @@ function App() {
         <Routes>
           <Route path="/" element={<EntryPage />} />
           <Route path="/book" element={<BookingPage />} />
+          <Route path="/booking-preview" element={<PassengerBookingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
