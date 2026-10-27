@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Ruta Smart Mobility",
+    "slug": "ruta-smart-mobility",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "rw.ruta.smartmobility"
+    },
+    "android": {
+      "package": "rw.ruta.smartmobility"
+    }
+  }
+}
