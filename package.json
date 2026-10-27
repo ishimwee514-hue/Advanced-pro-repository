@@ -1,30 +1,8 @@
 {
-  "name": "ruta",
-  "private": true,
-  "version": "1.0.0",
-  "description": "Ruta mobility platform monorepo",
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
-  "scripts": {
-    "dev": "npm run dev --workspace @ruta/frontend",
-    "dev:backend": "npm run dev --workspace @ruta/backend",
-    "build": "npm run build --workspace @ruta/frontend",
-    "preview": "npm run preview --workspace @ruta/frontend",
-    "db:generate": "npm run prisma:generate --workspace @ruta/backend",
-    "db:migrate": "npm run prisma:migrate --workspace @ruta/backend"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ishimwee514-hue/Advanced-pro-repository.git"
-  },
-  "keywords": [],
-  "bugs": {
-    "url": "https://github.com/ishimwee514-hue/Advanced-pro-repository/issues"
-  },
-  "homepage": "https://github.com/ishimwee514-hue/Advanced-pro-repository#readme",
-  "engines": {
-    "node": ">=20.6"
-  }
+  "name":"ruta","private":true,"version":"1.0.0","description":"Ruta mobility platform monorepo",
+  "workspaces":["frontend","backend"],
+  "scripts":{"dev":"npm run dev --workspace @ruta/frontend","dev:backend":"npm run dev --workspace @ruta/backend","start:backend":"npm run start --workspace @ruta/backend","build":"npm run build --workspace @ruta/frontend","preview":"npm run preview --workspace @ruta/frontend","db:generate":"npm run prisma:generate --workspace @ruta/backend","db:migrate":"npm run prisma:migrate --workspace @ruta/backend","db:migrate:deploy":"npm run prisma:migrate:deploy --workspace @ruta/backend","db:seed":"npm run seed --workspace @ruta/backend"},
+  "repository":{"type":"git","url":"git+https://github.com/ishimwee514-hue/Advanced-pro-repository.git"},
+  "keywords":["rwanda","transport","bus-booking","mobility"],
+  "bugs":{"url":"https://github.com/ishimwee514-hue/Advanced-pro-repository/issues"},"homepage":"https://github.com/ishimwee514-hue/Advanced-pro-repository#readme","engines":{"node":">=20.6"}
 }
