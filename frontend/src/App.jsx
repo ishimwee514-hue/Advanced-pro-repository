@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { RoleProvider } from './context/RoleContext.jsx'
 import AppLayout from './components/AppLayout.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
+import BookingPage from './pages/BookingPage.jsx'
 import EntryPage from './pages/EntryPage.jsx'
 import FleetPage from './pages/FleetPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
@@ -19,7 +20,8 @@ function App() {
       <RoleProvider>
         <Routes>
           <Route path="/" element={<EntryPage />} />
-          <Route path="/book" element={<PassengerBookingPage />} />
+          <Route path="/book" element={<BookingPage />} />
+          <Route path="/booking-preview" element={<PassengerBookingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
@@ -35,4 +37,5 @@ function App() {
     </BrowserRouter>
   )
 }
+
 export default App
