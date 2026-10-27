@@ -1,47 +1,52 @@
 # Ruta Smart Mobility
 
-Ruta is an npm-workspaces monorepo for a transport operations and passenger platform. The frontend contains the current navigable demo screens. The backend is a runnable Express starter with a Prisma/PostgreSQL schema and an API health endpoint.
+Ruta is a single-repository bus mobility platform for Rwanda with three clients sharing one API and PostgreSQL database:
 
-## Getting started
+- **Browser website:** React + Vite, for Chrome and other modern browsers.
+- **Android app:** Expo + React Native in `apps/mobile`.
+- **iOS app:** Expo + React Native in `apps/mobile`.
+- **Backend:** Express API + Prisma.
+- **Database:** PostgreSQL.
+
+## Current capabilities
+- Passenger registration and sign-in (API)
+- Search scheduled trips by origin, destination, and date
+- View seat availability and select a seat
+- Reserve a seat with a server-calculated fare
+- View authenticated passenger ticket history
+- Seed demo routes and future trips for testing
+
+Bookings remain **PENDING** until a real payment provider is configured. No payment success is simulated. Seed data is illustrative, not verified operator schedules.
+
+## Structure
+```text
+frontend/          Browser website (React/Vite)
+apps/mobile/       Android + iOS client (Expo/React Native)
+backend/           Express API and Prisma schema
+backend/prisma/    Database schema and demo seed
+.github/workflows/ Build checks
+docs/              Architecture, API, database and deployment guides
+vercel.json        Browser deployment configuration
+```
+
+## Run locally
+Requirements: Node.js 20.6+ and PostgreSQL.
 
 ```sh
-npm install
+npm ci
+cp backend/.env.example backend/.env
+# Set DATABASE_URL and AUTH_TOKEN_SECRET (private random value, 32+ chars)
+npm run db:generate
+npm run db:migrate
+npm run db:seed
 npm run dev
 ```
+In a second terminal run `npm run dev:backend`. Browser: `http://localhost:3000`; API health: `http://localhost:4000/api/health`.
 
-Run the API in a second terminal with `npm run dev:backend`. The frontend is served at `http://localhost:3000`; the API listens at `http://localhost:4000`.
+For mobile, see [apps/mobile/README.md](apps/mobile/README.md). Set `EXPO_PUBLIC_API_URL` to an API URL reachable from the phone.
 
-Use the **View as** selector in the top bar to explore agency, driver and passenger dashboard views. The sign-in screen is a demo entry point only; no credentials or personal data are stored. API domain endpoints intentionally return `501 Not Implemented` until their business logic, authentication and validation are implemented. Payments and SMS are not connected.
+## Deploy
+See [docs/deployment.md](docs/deployment.md) for browser hosting, API/database configuration, and mobile release steps.
 
-## Monorepo structure
-
-```text
-frontend/
-├── public/            # Static favicon and public assets
-├── src/
-│   ├── components/    # Shared navigation, role selector, tables and UI
-│   ├── context/       # Frontend role state
-│   ├── data/          # Sample data for the demo screens
-│   ├── pages/         # Shared pages and Agency, Driver, Passenger views
-│   ├── services/      # API client and auth, trip, payment request modules
-│   ├── styles/        # Application and document styles
-│   └── utils/         # Shared display helpers
-├── index.html         # Vite HTML entry (kept at Vite's expected root)
-└── vite.config.js
-backend/
-├── prisma/schema.prisma
-└── src/
-    ├── config/        # Environment, database and payment configuration
-    ├── controllers/   # API request handlers
-    ├── middleware/    # Error and not-found handlers
-    ├── routes/        # Versionable API route modules
-    ├── services/      # External service integration boundaries
-    └── utils/         # Shared HTTP error helpers
-docs/                  # Architecture, API and database notes
-```
-
-Vite expects its HTML entry at `frontend/index.html` rather than `frontend/public/index.html`; files in `frontend/public/` are copied to the site root as static assets. Prisma's schema is the source of truth for database models.
-
-For local PostgreSQL work, copy `backend/.env.example` to `backend/.env`, configure `DATABASE_URL`, then run `npm run db:generate` and `npm run db:migrate`.
-
-All displayed operational data is static sample content. See [docs/architecture.md](docs/architecture.md), [docs/api.md](docs/api.md) and [docs/database.md](docs/database.md) for current boundaries and next steps.
+## Release status
+This is active development, not a verified production booking service. Configure a real database, migrate and seed it, pass automated checks, and manually test the full booking journey before launch. Payments, notifications, complete operator/admin management, refunds, and production operations are not complete.
