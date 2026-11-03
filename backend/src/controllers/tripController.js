@@ -132,7 +132,7 @@ export async function listMyTickets(request, response, next) {
       orderBy: { createdAt: 'desc' }, take: 100,
     })
     return response.json({ tickets: tickets.map((ticket) => ({
-      id: ticket.id, status: ticket.status, seatNumber: ticket.seatNumber, fare: Number(ticket.fare), currency: 'RWF', expiresAt: ticket.expiresAt,
+      id: ticket.id, tripId: ticket.tripId, status: ticket.status, seatNumber: ticket.seatNumber, fare: Number(ticket.fare), currency: 'RWF', expiresAt: ticket.expiresAt,
       origin: ticket.trip.route.origin, destination: ticket.trip.route.destination, departureAt: ticket.trip.departureAt,
     })) })
   } catch (error) { return next(error) }
