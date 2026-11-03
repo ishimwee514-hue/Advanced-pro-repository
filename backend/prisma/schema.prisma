@@ -106,7 +106,9 @@ model Ticket {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
+  // Active-seat uniqueness is enforced by a PostgreSQL partial unique index in the migration.
   @@index([tripId, seatNumber, status])
+  @@index([status, expiresAt])
   @@index([passengerId, status])
 }
 
