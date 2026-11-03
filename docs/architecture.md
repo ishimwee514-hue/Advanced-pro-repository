@@ -1,24 +1,53 @@
 # Ruta architecture
 
-Ruta is an npm-workspaces monorepo. The frontend and backend are separate applications with independent package manifests and a shared root command interface.
+Ruta is an npm-workspaces monorepo with three clients sharing one Express API and PostgreSQL database.
 
 ```text
-frontend/  React + Vite client, pages, reusable components, API services and styles
-backend/   Express API, configuration, middleware, domain controllers and routes
-backend/prisma/ PostgreSQL schema and generated Prisma client
-docs/      Architecture, API starter contract and database notes
+frontend/       React + Vite browser application
+apps/mobile/    Expo + React Native application for Android and iOS
+backend/        Express API, authentication, domain controllers and services
+backend/prisma/ PostgreSQL schema, migrations and demo seed
+docs/           Architecture, API, database and deployment guides
 ```
 
-The Vite HTML entry lives at `frontend/index.html` (Vite's standard convention); static files such as icons belong in `frontend/public/`. The current screens continue to use clearly marked sample data. The Express API currently provides a health endpoint; domain endpoints return `501 Not Implemented` until their behavior, authentication and validation are implemented. Payment credentials are never stored in source control.
+## Implemented passenger capabilities
+
+- Passenger registration and sign-in with signed bearer tokens.
+- Trip search by origin, destination and travel date.
+- Current seat availability from PostgreSQL.
+- Server-calculated fares and passenger-owned ticket history.
+- Pending seat reservations with a 15-minute expiry.
+- Passenger cancellation of pending reservations.
+- Database-enforced uniqueness for seats held by pending or confirmed tickets.
+- Expired reservations are released when booking/search endpoints are accessed.
+
+The PostgreSQL migration uses a partial unique index for active ticket statuses. Prisma does not represent that partial-index predicate directly; keep the SQL migration and model changes aligned when evolving the ticket schema.
+
+## Infrastructure foundation
+
+- Request correlation IDs and baseline HTTP security headers.
+- Structured JSON logging.
+- API health and database readiness endpoints.
+- Adapter contracts for cache, private storage and durable jobs.
+
+These foundations do not mean that a production cache, object-storage provider, worker system or external monitoring service is configured.
 
 ## Development
 
-Run the client and API in separate terminals:
+Requirements: Node.js 20.6+ and PostgreSQL.
 
 ```sh
-npm install
+npm ci
+cp backend/.env.example backend/.env
+# Set DATABASE_URL and AUTH_TOKEN_SECRET (private random value, 32+ chars)
+npm run db:generate
+npm run db:migrate
+npm run db:seed
 npm run dev
-npm run dev:backend
 ```
 
-The client uses `http://localhost:3000`, and the API uses `http://localhost:4000` by default. Copy `backend/.env.example` to `backend/.env` for local backend configuration. Set `DATABASE_URL` to a local PostgreSQL database before generating the Prisma client or running migrations.
+In a second terminal run `npm run dev:backend`. The browser client uses `http://localhost:3000`; the API uses `http://localhost:4000/api`.
+
+## Validation
+
+Run `npm run test:backend` with a migrated PostgreSQL database, then `npm run build`. GitHub Actions runs the backend booking integration test against a temporary PostgreSQL service and bundles the Android client.
