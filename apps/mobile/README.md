@@ -15,4 +15,4 @@ npx expo start
 
 On a physical phone, do not use localhost for an API running on your computer; use the computer's LAN IP or a deployed HTTPS URL. Never place secrets in EXPO_PUBLIC variables.
 
-Included: passenger registration/sign-in, trip search, seat availability, pending seat reservations, and ticket history. Payment confirmation, persistent login storage, push notifications, device QA, EAS signing, and app-store publishing are not complete. iOS distribution requires Apple signing and an Apple Developer account.
+Included: passenger registration/sign-in, trip search, seat availability, 15-minute pending seat reservations, passenger cancellation of pending reservations, and ticket history. Automatic scheduled expiry cleanup, payment confirmation, persistent login storage, push notifications, device QA, EAS signing, and app-store publishing are not complete. iOS distribution requires Apple signing and an Apple Developer account.
