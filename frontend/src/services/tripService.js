@@ -24,3 +24,10 @@ export function bookTrip(tripId, seatNumber, token) {
 export function getMyTickets(token) {
   return request('/trips/my-tickets', { headers: { Authorization: `Bearer ${token}` } })
 }
+
+export function cancelPendingTicket(tripId, ticketId, token) {
+  return request(`/trips/${encodeURIComponent(tripId)}/tickets/${encodeURIComponent(ticketId)}/cancel`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
