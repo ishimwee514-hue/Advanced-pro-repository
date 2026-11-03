@@ -6,6 +6,23 @@ on:
 jobs:
   web-api-mobile:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ruta
+          POSTGRES_PASSWORD: ruta
+          POSTGRES_DB: ruta
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ruta -d ruta"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://ruta:ruta@localhost:5432/ruta?schema=public
+      AUTH_TOKEN_SECRET: ruta-ci-test-secret-with-more-than-32-characters
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,6 +33,10 @@ jobs:
         run: npm ci
       - name: Generate Prisma client
         run: npm run db:generate
+      - name: Apply database migrations
+        run: npm run db:migrate:deploy
+      - name: Test passenger booking and reservation lifecycle
+        run: npm run test:backend
       - name: Build browser website
         run: npm run build
       - name: Check backend entry syntax
