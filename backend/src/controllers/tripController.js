@@ -2,6 +2,17 @@ import { prisma } from '../config/database.js'
 
 const activeTripStatuses = ['SCHEDULED', 'BOARDING']
 const reservedTicketStatuses = ['PENDING', 'CONFIRMED']
+const reservationLifetimeMs = 15 * 60 * 1000
+
+async function expirePendingReservations({ tripId, passengerId } = {}) {
+  const where = {
+    status: 'PENDING',
+    expiresAt: { lte: new Date() },
+    ...(tripId ? { tripId } : {}),
+    ...(passengerId ? { passengerId } : {}),
+  }
+  await prisma.ticket.updateMany({ where, data: { status: 'CANCELLED' } })
+}
 
 function parseDate(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null
@@ -26,6 +37,7 @@ function serializeTrip(trip) {
 
 export async function listTrips(request, response, next) {
   try {
+    await expirePendingReservations()
     const { origin, destination, date } = request.query
     if ((origin !== undefined && (typeof origin !== 'string' || origin.trim().length > 100)) ||
         (destination !== undefined && (typeof destination !== 'string' || destination.trim().length > 100))) {
@@ -56,6 +68,7 @@ export async function listTrips(request, response, next) {
 
 export async function getTripSeats(request, response, next) {
   try {
+    await expirePendingReservations({ tripId: request.params.tripId })
     const trip = await prisma.trip.findUnique({
       where: { id: request.params.tripId },
       include: {
@@ -81,6 +94,7 @@ export async function getTripSeats(request, response, next) {
 
 export async function bookTrip(request, response, next) {
   try {
+    await expirePendingReservations({ tripId: request.params.tripId })
     const { seatNumber } = request.body ?? {}
     if (typeof seatNumber !== 'string' || !/^\d{1,3}$/.test(seatNumber) || Number(seatNumber) < 1) {
       return response.status(400).json({ error: 'Choose a valid seat number.' })
@@ -96,12 +110,12 @@ export async function bookTrip(request, response, next) {
       return response.status(400).json({ error: 'That seat number is outside this vehicle’s capacity.' })
     }
     const ticket = await prisma.ticket.create({
-      data: { tripId: trip.id, passengerId: request.user.id, seatNumber: String(Number(seatNumber)), fare: trip.route.baseFare, status: 'PENDING' },
+      data: { tripId: trip.id, passengerId: request.user.id, seatNumber: String(Number(seatNumber)), fare: trip.route.baseFare, status: 'PENDING', expiresAt: new Date(Date.now() + reservationLifetimeMs) },
       include: { trip: { include: { route: true } } },
     })
     return response.status(201).json({
-      ticket: { id: ticket.id, status: ticket.status, seatNumber: ticket.seatNumber, fare: Number(ticket.fare), currency: 'RWF', origin: ticket.trip.route.origin, destination: ticket.trip.route.destination, departureAt: ticket.trip.departureAt },
-      message: 'Seat reserved. Payment is not collected; the ticket remains pending until payment is integrated.',
+      ticket: { id: ticket.id, status: ticket.status, seatNumber: ticket.seatNumber, fare: Number(ticket.fare), currency: 'RWF', expiresAt: ticket.expiresAt, origin: ticket.trip.route.origin, destination: ticket.trip.route.destination, departureAt: ticket.trip.departureAt },
+      message: 'Seat reserved for 15 minutes. Payment is not collected; the ticket remains pending until payment is integrated.',
     })
   } catch (error) {
     if (error?.code === 'P2002') return response.status(409).json({ error: 'That seat has just been booked. Select another seat.' })
@@ -111,14 +125,34 @@ export async function bookTrip(request, response, next) {
 
 export async function listMyTickets(request, response, next) {
   try {
+    await expirePendingReservations({ passengerId: request.user.id })
     const tickets = await prisma.ticket.findMany({
       where: { passengerId: request.user.id },
       include: { trip: { include: { route: true } } },
       orderBy: { createdAt: 'desc' }, take: 100,
     })
     return response.json({ tickets: tickets.map((ticket) => ({
-      id: ticket.id, status: ticket.status, seatNumber: ticket.seatNumber, fare: Number(ticket.fare), currency: 'RWF',
+      id: ticket.id, tripId: ticket.tripId, status: ticket.status, seatNumber: ticket.seatNumber, fare: Number(ticket.fare), currency: 'RWF', expiresAt: ticket.expiresAt,
       origin: ticket.trip.route.origin, destination: ticket.trip.route.destination, departureAt: ticket.trip.departureAt,
     })) })
+  } catch (error) { return next(error) }
+}
+
+export async function cancelPendingTicket(request, response, next) {
+  try {
+    await expirePendingReservations({ tripId: request.params.tripId, passengerId: request.user.id })
+    const result = await prisma.ticket.updateMany({
+      where: {
+        id: request.params.ticketId,
+        tripId: request.params.tripId,
+        passengerId: request.user.id,
+        status: 'PENDING',
+      },
+      data: { status: 'CANCELLED' },
+    })
+    if (result.count === 0) {
+      return response.status(409).json({ error: 'This pending reservation cannot be cancelled. It may already be expired, cancelled, or confirmed.' })
+    }
+    return response.json({ message: 'Reservation cancelled. The seat is available again.' })
   } catch (error) { return next(error) }
 }

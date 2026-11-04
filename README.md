@@ -12,7 +12,8 @@ Ruta is a single-repository bus mobility platform for Rwanda with three clients 
 - Passenger registration and sign-in (API)
 - Search scheduled trips by origin, destination, and date
 - View seat availability and select a seat
-- Reserve a seat with a server-calculated fare
+- Reserve a seat with a server-calculated fare for 15 minutes
+- Cancel a pending reservation and release the seat for another passenger
 - View authenticated passenger ticket history
 - Seed demo routes and future trips for testing
 
@@ -49,4 +50,4 @@ For mobile, see [apps/mobile/README.md](apps/mobile/README.md). Set `EXPO_PUBLIC
 See [docs/deployment.md](docs/deployment.md) for browser hosting, API/database configuration, and mobile release steps.
 
 ## Release status
-This is active development, not a verified production booking service. Configure a real database, migrate and seed it, pass automated checks, and manually test the full booking journey before launch. Payments, notifications, complete operator/admin management, refunds, and production operations are not complete.
+This is active development, not a verified production booking service. Configure a real database, apply migrations, pass automated backend booking tests, and manually test the full booking journey before launch. Payments, notifications, complete operator/admin management, refunds, scheduled reservation cleanup, and production operations are not complete.

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { bookTrip, getMyTickets, getTripSeats, getTrips } from '../services/tripService.js'
+import { bookTrip, cancelPendingTicket, getMyTickets, getTripSeats, getTrips } from '../services/tripService.js'
 import { login, registerPassenger } from '../services/authService.js'
 
 function todayLocal() {
@@ -122,6 +122,21 @@ function BookingPage() {
     } finally { setLoading(false) }
   }
 
+  async function cancelReservation(ticket) {
+    if (!auth?.token || ticket.status !== 'PENDING') return
+    setError('')
+    setMessage('')
+    setLoading(true)
+    try {
+      const result = await cancelPendingTicket(ticket.tripId, ticket.id, auth.token)
+      setMessage(result.message || 'Reservation cancelled.')
+      const refreshed = await getMyTickets(auth.token)
+      setTickets(refreshed.tickets ?? [])
+    } catch (requestError) {
+      setError(requestError.message || 'Could not cancel this reservation.')
+    } finally { setLoading(false) }
+  }
+
   function signOut() {
     sessionStorage.removeItem('ruta-passenger-auth')
     setAuth(null)
@@ -189,7 +204,7 @@ function BookingPage() {
 
       {auth && <section className="booking-panel">
         <div className="booking-section-heading"><div><h2>My tickets</h2><p>Tickets linked to your passenger account.</p></div><button className="booking-link-button" type="button" onClick={() => getMyTickets(auth.token).then((result) => setTickets(result.tickets ?? [])).catch((e) => setError(e.message))}>Refresh</button></div>
-        {tickets.length === 0 ? <p className="booking-empty">No tickets yet. Search for a trip and reserve a seat.</p> : <div className="booking-ticket-list">{tickets.map((ticket) => <article className="booking-ticket" key={ticket.id}><div><strong>{ticket.origin} → {ticket.destination}</strong><span>{formatDeparture(ticket.departureAt)}</span></div><div><span>Seat {ticket.seatNumber} · {money(ticket.fare)}</span><small>Reference: {ticket.id}</small></div><span className={`booking-ticket-status ${ticket.status.toLowerCase()}`}>{ticket.status}</span></article>)}</div>}
+        {tickets.length === 0 ? <p className="booking-empty">No tickets yet. Search for a trip and reserve a seat.</p> : <div className="booking-ticket-list">{tickets.map((ticket) => <article className="booking-ticket" key={ticket.id}><div><strong>{ticket.origin} → {ticket.destination}</strong><span>{formatDeparture(ticket.departureAt)}</span></div><div><span>Seat {ticket.seatNumber} · {money(ticket.fare)}</span><small>Reference: {ticket.id}</small>{ticket.expiresAt && ticket.status === 'PENDING' && <small>Reservation expires: {formatDeparture(ticket.expiresAt)}</small>}</div><span className={`booking-ticket-status ${ticket.status.toLowerCase()}`}>{ticket.status}</span>{ticket.status === 'PENDING' && <button className="booking-link-button" type="button" disabled={loading} onClick={() => cancelReservation(ticket)}>Cancel reservation</button>}</article>)}</div>}
       </section>}
       <footer className="booking-footer">Ruta · Passenger booking · Payments are not enabled yet</footer>
     </main>
