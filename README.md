@@ -9,10 +9,12 @@ Ruta is a single-repository bus mobility platform for Rwanda with three clients 
 - **Database:** PostgreSQL.
 
 ## Current capabilities
+
 - Passenger registration and sign-in (API)
 - Search scheduled trips by origin, destination, and date
 - View seat availability and select a seat
 - Reserve a seat with a server-calculated fare for 15 minutes
+- Automatically release expired reservations on a background schedule and during booking-related requests
 - Cancel a pending reservation and release the seat for another passenger
 - View authenticated passenger ticket history
 - Seed demo routes and future trips for testing
@@ -20,6 +22,7 @@ Ruta is a single-repository bus mobility platform for Rwanda with three clients 
 Bookings remain **PENDING** until a real payment provider is configured. No payment success is simulated. Seed data is illustrative, not verified operator schedules.
 
 ## Structure
+
 ```text
 frontend/          Browser website (React/Vite)
 apps/mobile/       Android + iOS client (Expo/React Native)
@@ -31,6 +34,7 @@ vercel.json        Browser deployment configuration
 ```
 
 ## Run locally
+
 Requirements: Node.js 20.6+ and PostgreSQL.
 
 ```sh
@@ -42,12 +46,15 @@ npm run db:migrate
 npm run db:seed
 npm run dev
 ```
+
 In a second terminal run `npm run dev:backend`. Browser: `http://localhost:3000`; API health: `http://localhost:4000/api/health`.
 
 For mobile, see [apps/mobile/README.md](apps/mobile/README.md). Set `EXPO_PUBLIC_API_URL` to an API URL reachable from the phone.
 
 ## Deploy
-See [docs/deployment.md](docs/deployment.md) for browser hosting, API/database configuration, and mobile release steps.
+
+See [docs/deployment.md](docs/deployment.md) for browser hosting, API/database configuration, and mobile release steps. The API starts a periodic reservation-expiry worker automatically; run only one worker per API process (the update operation is safe to repeat across instances).
 
 ## Release status
-This is active development, not a verified production booking service. Configure a real database, apply migrations, pass automated backend booking tests, and manually test the full booking journey before launch. Payments, notifications, complete operator/admin management, refunds, scheduled reservation cleanup, and production operations are not complete.
+
+This is active development, not a verified production booking service. Configure a real database, apply migrations, pass automated backend booking tests, and manually test the full booking journey before launch. Payments, notifications, complete operator/admin management, refunds, and production operations are not complete.
