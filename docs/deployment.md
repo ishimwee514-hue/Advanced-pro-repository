@@ -29,6 +29,8 @@ Configure a Node web service:
 
 Run `npm run db:migrate:deploy` in a trusted deployment shell or one-off job. Use a direct database URL for migrations if the provider distinguishes pooled and direct connections. Do not run development migrations against production.
 
+The API process automatically runs a reservation-expiry cleanup immediately at startup and every 60 seconds. It also stops the timer and closes the database connection on SIGINT/SIGTERM. This worker is suitable for the current single-service setup; for multi-instance deployments, monitor duplicate cleanup activity and consider moving cleanup to one dedicated worker process.
+
 ## Android and iOS
 
 1. Set `EXPO_PUBLIC_API_URL` to the same deployed API URL ending in `/api`.
@@ -42,5 +44,4 @@ Run `npm run db:migrate:deploy` in a trusted deployment shell or one-off job. Us
 - Payments are not integrated. Payment requests intentionally return a not-configured response. Never mark tickets paid without verified provider confirmation.
 - Seeded trips are demo data, not operator-confirmed schedules.
 - Complete operator/driver management, payment reconciliation, refunds, SMS/push notifications, persistent mobile sessions, rate limiting, production monitoring, backups and full device/end-to-end QA remain release work.
-- Expired pending reservations are currently released lazily when relevant API endpoints are accessed; a scheduled cleanup worker is not yet configured.
 - Free hosting is suitable for demos, not a guarantee of production-grade uptime.
