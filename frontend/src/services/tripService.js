@@ -9,6 +9,10 @@ export function getTrips(filters = {}) {
   return request(`/trips${suffix}`)
 }
 
+export function getTripLocation(tripId, token) {
+  return request(`/trips/${encodeURIComponent(tripId)}/location`, { headers: { Authorization: `Bearer ${token}` } })
+}
+
 export function getTripSeats(tripId) {
   return request(`/trips/${encodeURIComponent(tripId)}/seats`)
 }

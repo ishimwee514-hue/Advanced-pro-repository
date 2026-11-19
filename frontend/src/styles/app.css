@@ -564,3 +564,12 @@ tbody tr:hover { background: #fbfcfd; }
 @media (prefers-reduced-motion: reduce) {
   .entry-departure, .entry-route-item, .seat-button { transition: none; }
 }
+
+/* Passenger live bus tracking */
+.booking-live-tracking { margin-top: 20px; padding: 18px; border: 1px solid #d8e6f5; border-radius: 12px; background: #f7fbff; }
+.booking-live-tracking h3 { color: #1e2939; font-size: 16px; }
+.booking-live-tracking p { margin-top: 8px; color: #667085; font-size: 12px; }
+.booking-live-tracking .action-button { margin-top: 12px; }
+.tracking-live, .tracking-stale { padding: 6px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.tracking-live { color: #087443; background: #e8f7ef; }
+.tracking-stale { color: #9a6700; background: #fff4d6; }

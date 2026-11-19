@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { bookTrip, cancelPendingTicket, getMyTickets, getTripSeats, getTrips } from '../services/tripService.js'
+import { bookTrip, cancelPendingTicket, getMyTickets, getTripLocation, getTripSeats, getTrips } from '../services/tripService.js'
 import { login, registerPassenger } from '../services/authService.js'
 
 function todayLocal() {
@@ -32,6 +32,18 @@ function BookingPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
+  const [trackingTripId, setTrackingTripId] = useState('')
+  const [busLocation, setBusLocation] = useState(null)
+  const [trackingError, setTrackingError] = useState('')
+
+  useEffect(() => {
+    if (!trackingTripId || !auth?.token) { setBusLocation(null); return }
+    let active = true
+    const refresh = () => getTripLocation(trackingTripId, auth.token).then((result) => { if (active) { setBusLocation(result.location); setTrackingError('') } }).catch((e) => { if (active) { setBusLocation(null); setTrackingError(e.message || 'Bus location is not available yet.') } })
+    refresh()
+    const timer = window.setInterval(refresh, 15000)
+    return () => { active = false; window.clearInterval(timer) }
+  }, [trackingTripId, auth?.token])
 
   useEffect(() => {
     if (!auth?.token) return
@@ -204,8 +216,9 @@ function BookingPage() {
 
       {auth && <section className="booking-panel">
         <div className="booking-section-heading"><div><h2>My tickets</h2><p>Tickets linked to your passenger account.</p></div><button className="booking-link-button" type="button" onClick={() => getMyTickets(auth.token).then((result) => setTickets(result.tickets ?? [])).catch((e) => setError(e.message))}>Refresh</button></div>
-        {tickets.length === 0 ? <p className="booking-empty">No tickets yet. Search for a trip and reserve a seat.</p> : <div className="booking-ticket-list">{tickets.map((ticket) => <article className="booking-ticket" key={ticket.id}><div><strong>{ticket.origin} → {ticket.destination}</strong><span>{formatDeparture(ticket.departureAt)}</span></div><div><span>Seat {ticket.seatNumber} · {money(ticket.fare)}</span><small>Reference: {ticket.id}</small>{ticket.expiresAt && ticket.status === 'PENDING' && <small>Reservation expires: {formatDeparture(ticket.expiresAt)}</small>}</div><span className={`booking-ticket-status ${ticket.status.toLowerCase()}`}>{ticket.status}</span>{ticket.status === 'PENDING' && <button className="booking-link-button" type="button" disabled={loading} onClick={() => cancelReservation(ticket)}>Cancel reservation</button>}</article>)}</div>}
+        {tickets.length === 0 ? <p className="booking-empty">No tickets yet. Search for a trip and reserve a seat.</p> : <div className="booking-ticket-list">{tickets.map((ticket) => <article className="booking-ticket" key={ticket.id}><div><strong>{ticket.origin} → {ticket.destination}</strong><span>{formatDeparture(ticket.departureAt)}</span></div><div><span>Seat {ticket.seatNumber} · {money(ticket.fare)}</span><small>Reference: {ticket.id}</small>{ticket.expiresAt && ticket.status === 'PENDING' && <small>Reservation expires: {formatDeparture(ticket.expiresAt)}</small>}</div><span className={`booking-ticket-status ${ticket.status.toLowerCase()}`}>{ticket.status}</span>{(ticket.status === 'PENDING' || ticket.status === 'CONFIRMED') && <button className="booking-link-button" type="button" onClick={() => { setTrackingTripId(trackingTripId === ticket.tripId ? '' : ticket.tripId); setBusLocation(null); setTrackingError('') }}>{trackingTripId === ticket.tripId ? 'Stop tracking' : 'Track bus'}</button>}{ticket.status === 'PENDING' && <button className="booking-link-button" type="button" disabled={loading} onClick={() => cancelReservation(ticket)}>Cancel reservation</button>}</article>)}</div>}
       </section>}
+        {trackingTripId && <div className="booking-live-tracking"><div className="booking-section-heading"><div><h3>Live bus location</h3><p>Automatically refreshes every 15 seconds while this page is open.</p></div><span className={busLocation && !busLocation.isStale ? 'tracking-live' : 'tracking-stale'}>{busLocation ? (busLocation.isStale ? 'Location may be outdated' : 'Location updated') : 'Waiting for GPS'}</span></div>{busLocation ? <><p>Coordinates: {busLocation.latitude.toFixed(5)}, {busLocation.longitude.toFixed(5)}</p><p>Last update: {formatDeparture(busLocation.recordedAt)}{busLocation.speedKph != null ? ' · ' + busLocation.speedKph + ' km/h' : ''}</p><a className="action-button secondary" href={'https://www.openstreetmap.org/?mlat=' + busLocation.latitude + '&mlon=' + busLocation.longitude + '#map=16/' + busLocation.latitude + '/' + busLocation.longitude} target="_blank" rel="noreferrer">Open bus location on map</a></> : <p>{trackingError || 'Waiting for the assigned driver to share the vehicle GPS location.'}</p>}</div>}
       <footer className="booking-footer">Ruta · Passenger booking · Payments are not enabled yet</footer>
     </main>
   )
