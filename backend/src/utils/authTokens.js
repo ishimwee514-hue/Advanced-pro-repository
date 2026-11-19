@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
 const tokenLifetimeSeconds = 60 * 60 * 24 * 7
+const supportedRoles = ['PASSENGER', 'DRIVER', 'AGENCY', 'ADMIN']
 
 function getSecret() {
   const secret = process.env.AUTH_TOKEN_SECRET
@@ -47,7 +48,7 @@ export function verifyAuthToken(token) {
   try {
     const payload = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'))
     const now = Math.floor(Date.now() / 1000)
-    if (!payload.sub || !payload.exp || payload.exp <= now || payload.role !== 'PASSENGER') return null
+    if (!payload.sub || !payload.exp || payload.exp <= now || !supportedRoles.includes(payload.role)) return null
     return { id: payload.sub, role: payload.role }
   } catch {
     return null

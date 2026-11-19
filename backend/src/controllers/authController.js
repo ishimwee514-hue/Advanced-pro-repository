@@ -67,7 +67,7 @@ export async function login(request, response, next) {
     }
     const user = await prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } })
     const valid = user ? await verifyPassword(password, user.passwordHash) : false
-    if (!user || !valid || user.role !== 'PASSENGER') {
+    if (!user || !valid) {
       return response.status(401).json({ error: 'Email or password is incorrect.' })
     }
     return response.json({

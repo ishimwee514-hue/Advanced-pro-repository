@@ -1,34 +1,29 @@
-# API contract
+# Ruta API
 
-The backend serves JSON under `/api`.
+The API is a Node.js/Express service backed by PostgreSQL and Prisma.
 
-| Method | Path | Behavior |
-| --- | --- | --- |
-| GET | `/api/health` | API process health; does not claim the database is connected. |
-| GET | `/api/ready` | Checks PostgreSQL connectivity. |
-| POST | `/api/auth/register` | Creates a passenger account and returns a bearer token. |
-| POST | `/api/auth/login` | Verifies passenger credentials and returns a bearer token. |
-| GET | `/api/trips?origin=Kigali&destination=Huye&date=YYYY-MM-DD` | Searches scheduled/boarding trips. Date is optional and must use `YYYY-MM-DD`. |
-| GET | `/api/trips/:tripId/seats` | Returns vehicle seat numbers and current availability. |
-| POST | `/api/trips/:tripId/tickets` | Requires passenger bearer token and JSON `{ "seatNumber": "12" }`; creates a pending reservation using the server fare. |
-| POST | `/api/trips/:tripId/tickets/:ticketId/cancel` | Requires the owning passenger token; cancels a pending reservation and releases its seat. |
-| GET | `/api/trips/my-tickets` | Returns the signed-in passenger's ticket history, including reservation expiry. |
-| POST | `/api/payments` | Returns `501` until a payment provider is configured and verified. |
-| GET | `/api/agency/dashboard` | Returns `501` until agency reporting is implemented. |
+## Passenger booking
+- `GET /api/trips?origin=Kigali&destination=Huye&date=YYYY-MM-DD` — search scheduled trips.
+- `GET /api/trips/:tripId/seats` — view seat availability.
+- `POST /api/auth/register` and `POST /api/auth/login` — passenger registration and sign-in.
+- `POST /api/trips/:tripId/tickets` — reserve a seat for 15 minutes.
+- `GET /api/trips/my-tickets` — authenticated passenger booking history.
+- `POST /api/trips/:tripId/tickets/:ticketId/cancel` — cancel a pending reservation.
 
-## Reservation lifecycle
+## Live bus location
+Driver location publishing requires a signed-in DRIVER account assigned to the vehicle for the trip. An ADMIN account can publish for operational testing.
+- `POST /api/driver/trips/:tripId/location` — publish the current vehicle location.
+  JSON body: `{ "latitude": -2.60, "longitude": 29.74, "accuracyMeters": 12, "speedKph": 35, "headingDegrees": 90 }`.
+- `GET /api/trips/:tripId/location` — passengers with a pending or confirmed reservation for that trip can view its latest location.
 
-- A new reservation has status `PENDING` and expires 15 minutes after creation.
-- Pending reservations whose expiry has passed are marked `CANCELLED` when trip search, seat availability, booking, or the passenger's ticket history is accessed.
-- Pending reservations can be cancelled by their owning passenger.
-- Cancelled tickets remain in history, but no longer block the seat.
-- PostgreSQL enforces uniqueness for `(tripId, seatNumber)` while ticket status is `PENDING` or `CONFIRMED`. This is implemented by a partial unique index in the SQL migration.
-- Concurrent attempts to reserve the same active seat return `409`.
+The API stores one latest location per vehicle. Passenger responses include `isStale`; a location older than five minutes is marked stale. The driver app must request operating-system location permission and publish updates while the trip is active. The server does not fabricate locations.
 
-A pending reservation is not a paid or confirmed ticket. Payment confirmation, automatic expiry scheduling, refunds and confirmed-ticket cancellation policies are not implemented.
+## Health
+- `GET /api/health` — process health.
+- `GET /api/ready` — database readiness.
 
-## Security and configuration
-
-Set `AUTH_TOKEN_SECRET` to a private random secret of at least 32 characters. Keep it out of source control. Passwords use salted scrypt hashes and passenger tokens expire after seven days. Configure PostgreSQL `DATABASE_URL` before using trip and ticket endpoints.
-
-The API does not trust fare or passenger ID values supplied by the browser. Unknown API paths return `404`.
+## Important deployment requirements
+- Run `npm run db:generate` and `npm run db:migrate:deploy` after deployment.
+- Set `DATABASE_URL` and a private `AUTH_TOKEN_SECRET` (at least 32 characters).
+- Provision DRIVER and ADMIN accounts through a trusted administrative process. Public registration only creates PASSENGER accounts.
+- Payment endpoints remain disabled until provider credentials, callback verification, reconciliation, and refund handling are implemented and tested with MTN MoMo/Airtel Money. A pending reservation is not a paid ticket.

@@ -3,6 +3,7 @@ import { prisma } from '../config/database.js'
 import { logger } from '../infrastructure/monitoring/logger.js'
 import authRoutes from './auth.routes.js'
 import agencyRoutes from './agency.routes.js'
+import driverRoutes from './driver.routes.js'
 import paymentRoutes from './payments.routes.js'
 import tripRoutes from './trips.routes.js'
 const router = Router()
@@ -15,4 +16,5 @@ router.use('/auth', authRoutes)
 router.use('/trips', tripRoutes)
 router.use('/payments', paymentRoutes)
 router.use('/agency', agencyRoutes)
+router.use('/driver', driverRoutes)
 export default router
